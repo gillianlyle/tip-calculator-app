@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
+  <title>Frontend Mentor | Tip calculator app</title>
+  <link rel="stylesheet" href="./assets/index.css">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+  <header class="header container"><img src="images/logo.svg"></header>
+  <main id="app" class="main container">
+    <div class="column column-left">
+      <fieldset class="fieldset fieldset--bill">
+        <legend class="legend">Bill</legend>
+        <div class="container--bill-amount">
+          <label for="bill-amount" aria-label="Bill" class="label"><img src="./images/icon-dollar.svg"></label>
+          <input id="bill-amount" class="input" type="number" v-model="billAmount" placeholder="0">
+        </div> 
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend class="legend">Select Tip %</legend>
+        <div class="container--select-tip-percentage">
+          <template v-for="(percentage, index) in percentages" :key="index">
+              <button class="btn-percentage" @click="getTipPercentage(percentage)" :class="{'active': percentage === tipPercentage}">{{ percentage }}%</button>
+          </template>
+          <input class="input input-percentage" v-model="customTip" @input="getTipPercentage(customTip)" aria-label="Custom" placeholder="Custom" type="number" placeholder="Custom">
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset fieldset--number-of-people">
+        <legend class="legend">Number of People</legend>
+        <div v-if="noOfPeople === 0" class="msg-error error">Can't be zero</div>
+        <div class="container--number-of-people" :class="{ 'hasError': noOfPeople === 0}">
+          <label for="number-of-people" aria-label="Number of People" class="label"><img src="./images/icon-person.svg"></label>
+          <input id="number-of-people" class="input" type="number" v-model="noOfPeople" placeholder="0">
+        </div> 
+      </fieldset>
+    </div>
+
+    <div class="column column-right">
+      <div>
+        <div class="tip-amount-container">
+          <p class="text-light-grey-cyan">Tip amount <span class="per-person-container">/ person</span></p>
+          <p class="cost text-cyan">$ {{ tipAmountPerson }}</p>
+        </div>
+   
+        <div class="total-amount-container">
+          <p class="text-light-grey-cyan">Total <span class="per-person-container">/ person</span></p>
+          <p class="cost text-cyan">$ {{ totalAmountPerPerson }}</p>
+        </div>
+      </div>
+      <button type="button" class="btn-reset" @click="resetCalculator()" :disabled="!isResetEnabled" :class="{'disabled': !isResetEnabled}">RESET</button>
+    </div>
+  </main>
+  <footer class="container"> 
+    <div class="attribution">
+      Challenge by <a href="https://www.frontendmentor.io?ref=challenge" target="_blank">Frontend Mentor</a>.
+      Coded by Gillian Lyle.
+    </div>
+  </footer>
+
+  <script>
+    const { createApp } = Vue
+ 
+    createApp({
+      data() {
+        return {
+          billAmount: null,
+          tipPercentage:null,
+          customTip: null,
+          noOfPeople: null,
+          tipPerPerson: null,
+          totalPerPerson: null,
+          percentages:['5','10','15','25','50']
+        }
+      },
+      methods:{
+        getTipPercentage(percentage){
+          if (this.customTip !== percentage){
+            this.customTip = null;
+          }
+          return this.tipPercentage = percentage
+        },
+        resetCalculator(){
+            this.billAmount = null;
+            this.tipPercentage = null;
+            this.noOfPeople = null;
+
+            return;
+         },
+      },
+      computed: {
+        tipAmountPerson(){
+          if (this.billAmount > 0 && this.tipPerPerson >= 0 && this.noOfPeople > 0) {
+
+            let tip = (this.tipPercentage / 100) * this.billAmount;                                  
+            let tipAmount = (tip / this.noOfPeople).toFixed(2);
+
+            return tipAmount;
+          }
+
+          return '0.00';
+        },
+         totalAmountPerPerson(){
+          if (this.billAmount > 0 && this.tipPerPerson >= 0 && this.noOfPeople > 0){
+            let getTipAmount = (this.tipPercentage / 100) * this.billAmount;
+            let totalBill = this.billAmount + getTipAmount;
+            let totalPerson = isNaN((totalBill / this.noOfPeople).toFixed(2)) ? '0.00' : (totalBill / this.noOfPeople).toFixed(2);
+
+            return totalPerson;
+          }
+         
+          return '0.00';
+         },
+         isResetEnabled(){
+          if (this.billAmount > 0 && this.tipPerPerson >= 0 && this.noOfPeople > 0){
+            return true;
+          }
+
+          return false;
+         }
+      }
+    }).mount('#app')
+  </script>
+</body>
+</html>
